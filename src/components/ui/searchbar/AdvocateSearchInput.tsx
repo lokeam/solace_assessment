@@ -62,7 +62,7 @@ export default function AdvocateSearchBar({
           <Input
             placeholder="search by name, specialty, or location..."
             prefix={<SearchOutlined style={{ color: '#666' }} />}
-            className={`yelp-search-input ${searchFocused ? 'focused' : ''}`}
+            className={`search-container-input ${searchFocused ? 'focused' : ''}`}
             style={{
               background: '#fff !important',
               borderRadius: '8px 0 0 8px',

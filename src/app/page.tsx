@@ -7,6 +7,7 @@ import AppHeader from "@/components/ui/header/AppHeader";
 import AdvocateSearchHero from "@/components/ui/hero/AdvocateSearchHero";
 import LoadingIcon from "@/components/ui/loader/LoadingIcon";
 import AdvocateSearchInput from "@/components/ui/searchbar/AdvocateSearchInput";
+import DesktopSidebar from "@/components/layout/sidebar/DesktopSidebar";
 
 // Ant Design Components
 import { Table, Tag, Input, Select, Button, Pagination } from "antd";
@@ -16,12 +17,17 @@ import { useGetAdvocates } from "@/hooks/useGetAdvocates";
 import { useAdvocateFilters } from "@/hooks/useAdvocateFilters";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
+// Constants
+import { CREDENTIALS_OPTIONS, EXPERIENCE_OPTIONS, SPECIALTIES_OPTIONS } from '@/constants/filterOptions';
 
 export default function Home() {
-  // Search state via advocate filters hook
   const {
     searchTerm, setSearchTerm,
-    resetAllFilters
+    selectedCredentials, setSelectedCredentials,
+    selectedSpecialties, setSelectedSpecialties,
+    selectedExperience, setSelectedExperience,
+    resetAllFilters,
+    activeFiltersText
   } = useAdvocateFilters();
 
   // Pagination State
@@ -96,7 +102,7 @@ export default function Home() {
         searchState={{
           searchTerm,
           setSearchTerm,
-          searchFocused: false, // We don't need focus state
+          searchFocused: false, // Don't need focus state yet
           setSearchFocused: () => {} // Empty function
         }}
         popularSearches={[]} // Empty for now
@@ -106,12 +112,20 @@ export default function Home() {
       {/* Main Content - Search Results */}
       <div className="main-content-container">
         {/* Desktop Filters Sidebar */}
-        <aside className="desktop-search-filters-container">
-          Lots of radio btns and checkboxes
-          <form>
-            <button type="submit">Search</button>
-          </form>
-        </aside>
+        <DesktopSidebar
+          // Filter options data
+          experienceInYears={EXPERIENCE_OPTIONS}
+          credentials={CREDENTIALS_OPTIONS}
+          specialities={SPECIALTIES_OPTIONS}
+          // Filter state
+          selectedCredentials={selectedCredentials}
+          selectedSpecialties={selectedSpecialties}
+          selectedExperience={selectedExperience}
+          // Filter callbacks
+          onCredentialsChange={setSelectedCredentials}
+          onSpecialtiesChange={setSelectedSpecialties}
+          onExperienceChange={setSelectedExperience}
+        />
 
         {/* Main Content - Search Results */}
         <main className="search-results-container">
@@ -142,16 +156,16 @@ export default function Home() {
 
               {/* Table View */}
               <Table
-                    dataSource={advocates || []}
-                    columns={tableColumns}
-                    rowKey="id"
-                    pagination={{
-                      current: currentPage,
-                      pageSize: itemsPerPage,
-                      total: advocates.length,
-                      onChange: setCurrentPage
-                    }}
-                  />
+                dataSource={advocates || []}
+                columns={tableColumns}
+                rowKey="id"
+                pagination={{
+                  current: currentPage,
+                  pageSize: itemsPerPage,
+                  total: advocates.length,
+                  onChange: setCurrentPage
+                }}
+              />
 
               {/* Card Grid View */}
                 {/* Card Grid Probably Needs Pagination */}
