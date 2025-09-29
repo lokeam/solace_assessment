@@ -138,16 +138,41 @@ export async function GET(request: Request): Promise<Response> {
     // Credentials filter
     if (credentials) {
       console.log('🔍 Filtering by credentials:', credentials);
+      const credentialArr = credentials.split(',').filter(Boolean);
+      console.log('🔍 Credential array:', credentialArr);
+
+      // Note: need to use exact match instead of ILIKE for security
+      searchConditions.push(
+        or(...credentialArr.map(credential =>
+          eq(advocates.degree, credential.trim())
+        ))
+      );
+      console.log('🔍 Search conditions after credentials:', searchConditions.length);
     }
 
     // Speciality filter - match exact for security
     if (specialties) {
-      console.log('🔍 Filtering by specialties:', specialties);
+      const specList = specialties.split(',').filter(Boolean);
+      searchConditions.push(
+        or(...specList.map(spec =>
+          sql`${advocates.specialties}::text LIKE ${'%"' + spec.trim() + '"%'}`
+        ))
+      );
     }
 
     // Experience filter
     if (experience) {
-      console.log('🔍 Filtering by experience:', experience);
+      const [min, max] = experience.split('-').map(n => parseInt(n.trim()));
+      if (max) {
+        searchConditions.push(
+          and(
+            gte(advocates.yearsOfExperience, min),
+            lte(advocates.yearsOfExperience, max)
+          )
+        );
+      } else if (experience.includes('+')) {
+        searchConditions.push(gte(advocates.yearsOfExperience, min));
+      }
     }
 
     let baseQuery;
