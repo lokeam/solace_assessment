@@ -11,7 +11,8 @@ import DesktopSidebar from "@/components/layout/sidebar/DesktopSidebar";
 
 import ToggleViewButton from "@/components/ui/buttons/ToggleViewButton";
 import AdvocateCard from "@/components/ui/cards/AdvocateCard";
-
+import SkeletonCards from "@/components/ui/loader/SkeletonCards";
+import SkeletonTable from "@/components/ui/loader/SkeletonTable";
 // Ant Design Components
 import { Table, Tag, Input, Select, Button, Pagination } from "antd";
 
@@ -162,10 +163,23 @@ export default function Home() {
 
             {/* Results Table -- Multiple Views? */}
             <div className="result-table-container">
-              {/* If loading show skeleton */}
-
-              {/* Table View */}
-              { viewMode === 'table' ? (
+              { loading ? (
+              // Loading states for either table or card view
+              viewMode === 'table' ? (
+                <SkeletonTable
+                  itemsPerPage={itemsPerPage}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              ) : (
+                <SkeletonCards
+                  itemsPerPage={itemsPerPage}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              )) : (
+                // Show data associated with view mode
+                viewMode === 'table' ? (
                   <Table
                     dataSource={advocates || []}
                     columns={tableColumns}
@@ -196,7 +210,7 @@ export default function Home() {
                     />
                   </>
                 )
-              }
+              )}
             </div>
           </div>
         </main>
