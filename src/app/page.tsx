@@ -29,6 +29,7 @@ import { CREDENTIALS_OPTIONS, EXPERIENCE_OPTIONS, SPECIALTIES_OPTIONS } from '@/
 export default function Home() {
   const {
     searchTerm, setSearchTerm,
+    debouncedSearchTerm,
     selectedCredentials, setSelectedCredentials,
     selectedSpecialties, setSelectedSpecialties,
     selectedExperience, setSelectedExperience,
@@ -45,7 +46,7 @@ export default function Home() {
 
   // Initial data grabbed from API handled by getAdvocates hook
   const { advocates, loading, error } = useGetAdvocates({
-    searchTerm,
+    searchTerm: debouncedSearchTerm,
     selectedCredentials,
     selectedSpecialties,
     selectedExperience: selectedExperience || undefined

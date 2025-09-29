@@ -1,8 +1,10 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { debounce } from '@/app/utils/debounce';
 
 interface UseAdvocateFiltersReturn {
   // Search state
   searchTerm: string;
+  debouncedSearchTerm: string;
   setSearchTerm: (term: string) => void;
 
   // Filter state
@@ -24,16 +26,30 @@ interface UseAdvocateFiltersReturn {
 
 export function useAdvocateFilters(): UseAdvocateFiltersReturn {
   // Search state
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchTerm, setSearchTermImmediate] = useState<string>('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>('');
 
   // Filter state
   const [selectedCredentials, setSelectedCredentials] = useState<string[]>([]);
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [selectedExperience, setSelectedExperience] = useState<string>('');
 
+  // Debounced search updater
+  const updateDebouncedSearch = useMemo(() => debounce(setDebouncedSearchTerm, 300), []);
+
+  // Sync debounced search term with searchTerm
+  useEffect(() => {
+    updateDebouncedSearch(searchTerm);
+  }, [searchTerm, updateDebouncedSearch]);
+
+  const setSearchTerm = useCallback((term: string) => {
+    setSearchTermImmediate(term);
+  }, []);
+
   // Reset all filters to initial state
   const resetAllFilters = useCallback(() => {
-    setSearchTerm('');
+    setSearchTermImmediate('');
+    setDebouncedSearchTerm('');
     setSelectedCredentials([]);
     setSelectedSpecialties([]);
     setSelectedExperience('');
@@ -43,8 +59,8 @@ export function useAdvocateFilters(): UseAdvocateFiltersReturn {
   const activeFiltersText = useMemo(() => {
     const activeFilters = [];
 
-    if (searchTerm) {
-      activeFilters.push(`"${searchTerm}"`);
+    if (debouncedSearchTerm) {
+      activeFilters.push(`"${debouncedSearchTerm}"`);
     }
 
     if (selectedCredentials.length > 0) {
@@ -70,11 +86,12 @@ export function useAdvocateFilters(): UseAdvocateFiltersReturn {
 
     const lastFilter = activeFilters.pop();
     return `Showing search results for ${activeFilters.join(', ')} and ${lastFilter}`;
-  }, [searchTerm, selectedCredentials, selectedSpecialties, selectedExperience]);
+  }, [debouncedSearchTerm, selectedCredentials, selectedSpecialties, selectedExperience]);
 
   return {
     // Search
     searchTerm,
+    debouncedSearchTerm,
     setSearchTerm,
 
     // Filters
