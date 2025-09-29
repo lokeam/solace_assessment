@@ -1,8 +1,10 @@
+import { ConfigProvider } from "antd";
+import { solaceTheme } from "@/app/lib/antd-config";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import { ErrorBoundary } from "@/components/error/ErrorBoundary"
 
-const inter = Inter({ subsets: ["latin"] });
+import "./globals.css";
+import { mollieGlaston, lato } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Solace Candidate Assignment",
@@ -16,7 +18,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <head>
+        <link rel="preload" href="https://fonts.googleapis.com" as="style" />
+      </head>
+      <body className={`${mollieGlaston.variable} ${lato.variable}`}>
+        <ErrorBoundary>
+          <ConfigProvider theme={solaceTheme}>
+            {children}
+          </ConfigProvider>
+        </ErrorBoundary>
+      </body>
     </html>
   );
 }
