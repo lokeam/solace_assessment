@@ -5,9 +5,25 @@ import { useState } from "react";
 // Components
 import AppHeader from "@/components/ui/header/AppHeader";
 import AdvocateSearchHero from "@/components/ui/hero/AdvocateSearchHero";
+import LoadingIcon from "@/components/ui/loader/LoadingIcon";
+
+// Hooks
+import { useGetAdvocates } from "@/hooks/useGetAdvocates";
 
 
 export default function Home() {
+
+  // Initial data grabbed from API handled by getAdvocates hook
+  const { advocates, loading, error } = useGetAdvocates({
+    searchTerm: '',
+    selectedCredentials: [],
+    selectedSpecialties: [],
+    selectedExperience: undefined
+  });
+
+  // Loading and error states
+  if (loading) return <LoadingIcon />;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#fff', backgroundImage: 'linear-gradient(#fff 33%, #e9f0ee)' }}>
