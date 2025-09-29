@@ -57,7 +57,29 @@ export function useGetAdvocates(options: UseGetAdvocatesOptions = {}) {
           specialty.toLowerCase().includes(options.searchTerm?.toLowerCase() || '')
         );
 
-      const result = matchesSearch;
+      const matchesCredential = !options.selectedCredentials?.length ||
+        options.selectedCredentials.includes(advocate.degree);
+
+      const matchesSpecialty = !options.selectedSpecialties?.length ||
+        options.selectedSpecialties.some(spec => advocate.specialties?.includes(spec));
+
+      const matchesExperience = !options.selectedExperience || (() => {
+        const experience = advocate.yearsOfExperience;
+        console.log(`🔍 Advocate ${advocate.firstName}: experience=${experience}, selected=${options.selectedExperience}`);
+
+        switch (options.selectedExperience) {
+          case '1-3':
+            return experience >= 1 && experience <= 3;
+          case '4-8':
+            return experience >= 4 && experience <= 8;
+          case '8+':
+            return experience >= 8;
+          default:
+            return true;
+        }
+      })();
+
+      const result = matchesSearch && matchesCredential && matchesSpecialty && matchesExperience;
       console.log(`🔍 Advocate ${advocate.firstName}: matches=${result}`);
 
       return result;
@@ -70,7 +92,7 @@ export function useGetAdvocates(options: UseGetAdvocatesOptions = {}) {
     loading,
     error,
     refetch: () => {
-      // Note: Maybe trigger refetch if needed?
+      // Trigger refetch if needed
     }
   };
 }

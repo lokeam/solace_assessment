@@ -45,10 +45,10 @@ export default function Home() {
 
   // Initial data grabbed from API handled by getAdvocates hook
   const { advocates, loading, error } = useGetAdvocates({
-    searchTerm: '',
-    selectedCredentials: [],
-    selectedSpecialties: [],
-    selectedExperience: undefined
+    searchTerm,
+    selectedCredentials,
+    selectedSpecialties,
+    selectedExperience: selectedExperience || undefined
   });
 
   // Computed pagination values
@@ -144,7 +144,17 @@ export default function Home() {
         <main className="search-results-container">
           {/* Dynamic active filters summary */}
           <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 16px 0' }}>Advocates ({advocates.length} results)</h1>
-          <p>Showing results for:</p>
+          {/* Dynamic active filters summary */}
+          {activeFiltersText && (
+            <p style={{
+              fontSize: '1.1rem',
+              color: '#6b7280',
+              margin: '0 0 20px 0',
+              fontStyle: 'italic'
+            }}>
+              {activeFiltersText}
+            </p>
+          )}
 
           {/* Mobile Filters */}
           <div className="search-filters-wrapper" style={{ display: 'flex', justifyContent: 'space-between', width: '100%'}}>
