@@ -8,13 +8,15 @@ import AdvocateSearchHero from "@/components/ui/hero/AdvocateSearchHero";
 import LoadingIcon from "@/components/ui/loader/LoadingIcon";
 import AdvocateSearchInput from "@/components/ui/searchbar/AdvocateSearchInput";
 import DesktopSidebar from "@/components/layout/sidebar/DesktopSidebar";
-
+import CheckboxDropdownSelect from "@/components/ui/customdropdowns/CheckboxDropdownSelect";
 import ToggleViewButton from "@/components/ui/buttons/ToggleViewButton";
 import AdvocateCard from "@/components/ui/cards/AdvocateCard";
 import SkeletonCards from "@/components/ui/loader/SkeletonCards";
 import SkeletonTable from "@/components/ui/loader/SkeletonTable";
+
 // Ant Design Components
 import { Table, Tag, Input, Select, Button, Pagination } from "antd";
+import { UndoOutlined } from "@ant-design/icons";
 
 // Hooks
 import { useGetAdvocates } from "@/hooks/useGetAdvocates";
@@ -141,25 +143,42 @@ export default function Home() {
         {/* Main Content - Search Results */}
         <main className="search-results-container">
           {/* Dynamic active filters summary */}
-          <h1>Advocates results</h1>
+          <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 16px 0' }}>Advocates ({advocates.length} results)</h1>
           <p>Showing results for:</p>
 
           {/* Mobile Filters */}
-          <div className="search-filters-wrapper">
+          <div className="search-filters-wrapper" style={{ display: 'flex', justifyContent: 'space-between', width: '100%'}}>
             <div className="mobile-search-filters-container">
-              {/* Filter for Credentials*/}
-              <select>
-                <option value="">Select a filter</option>
-              </select>
-
-              {/* Filter for Experience*/}
-              <select>
-                <option value="">Select a filter</option>
-              </select>
-
-              <button>Reset Search</button>
-              <ToggleViewButton viewMode={viewMode} onViewChange={setViewMode} />
+              <CheckboxDropdownSelect
+                options={CREDENTIALS_OPTIONS}
+                value={selectedCredentials}
+                placeholder="Credentials"
+                onChange={setSelectedCredentials}
+              />
+              <Select
+                className="custom-multi-element-selector"
+                placeholder="Experience in years"
+                value={selectedExperience || undefined}
+                onChange={setSelectedExperience}
+                allowClear
+                style={{ height: '40px' }}
+              >
+                {EXPERIENCE_OPTIONS.map(option => (
+                  <Select.Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Option>
+                ))}
+              </Select>
             </div>
+            <Button
+              className="custom-btn reset-search-btn"
+              icon={<UndoOutlined />}
+              onClick={resetAllFilters}
+            >
+              Reset Search
+            </Button>
+            <ToggleViewButton viewMode={viewMode} onViewChange={setViewMode} />
+          </div>
 
             {/* Results Table -- Multiple Views? */}
             <div className="result-table-container">
@@ -194,8 +213,8 @@ export default function Home() {
                 ) : (
                   <>
                     <div className="advocates-grid">
-                      {cardViewPageRange.map((advocate) => (
-                        <AdvocateCard key={advocate?.phoneNumber} advocate={advocate} />
+                      {cardViewPageRange.map((advocate, index) => (
+                        <AdvocateCard key={`${index}-${advocate?.firstName}-${advocate?.lastName}`} advocate={advocate} />
                       ))}
                     </div>
 
@@ -211,7 +230,6 @@ export default function Home() {
                   </>
                 )
               )}
-            </div>
           </div>
         </main>
       </div>
