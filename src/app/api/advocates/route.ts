@@ -236,7 +236,7 @@ export async function GET(request: Request): Promise<Response> {
     const transformedData: Advocate[] = data.map((advocate) => ({
       ...advocate,
       specialties: advocate.specialties as string[],
-      phoneNumber: advocate.phoneNumber.toString(),
+      phoneNumber: advocate.phoneNumber,
     }));
 
     const response: SearchResponse = {
