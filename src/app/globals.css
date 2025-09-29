@@ -4,6 +4,9 @@
   /* Brand Colors */
   --color-primary: #265b4e;
   --color-primary-selected: #347866;
+  --color-primary-default: #1d4339;
+  --color-primary-light: #3f937c;
+  --color-primary-light-hover: #285e50;
   --color-secondary-cta: #d7a13b;
   --color-bg: #fff0;
   --color-on-primary: #ffffff;
@@ -223,6 +226,15 @@ h1, h2, h3, h4, h5, h6 {
 
 .advocate-search-btn:hover {
   background-color: #347866 !important;
+}
+
+.switch-view-btn {
+  background-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+
+.switch-view-btn:hover {
+  background-color: var(--color-primary-default) !important;
 }
 
 /* ----------- Loading Icon ----------- */

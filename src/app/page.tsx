@@ -9,6 +9,9 @@ import LoadingIcon from "@/components/ui/loader/LoadingIcon";
 import AdvocateSearchInput from "@/components/ui/searchbar/AdvocateSearchInput";
 import DesktopSidebar from "@/components/layout/sidebar/DesktopSidebar";
 
+import ToggleViewButton from "@/components/ui/buttons/ToggleViewButton";
+import AdvocateCard from "@/components/ui/cards/AdvocateCard";
+
 // Ant Design Components
 import { Table, Tag, Input, Select, Button, Pagination } from "antd";
 
@@ -34,6 +37,8 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useLocalStorage<number>('advocateCurrentPage', 1);
   const [itemsPerPage] = useState(15);
 
+  // View mode saved in localStorage
+  const [viewMode, setViewMode] = useLocalStorage<'table' | 'cards'>('advocateViewMode', 'table');
 
   // Initial data grabbed from API handled by getAdvocates hook
   const { advocates, loading, error } = useGetAdvocates({
@@ -42,6 +47,11 @@ export default function Home() {
     selectedSpecialties: [],
     selectedExperience: undefined
   });
+
+  // Computed pagination values
+  const cardViewStartIndex = (currentPage - 1) * itemsPerPage;
+  const cardViewEndIndex = cardViewStartIndex + itemsPerPage;
+  const cardViewPageRange = advocates.slice(cardViewStartIndex, cardViewEndIndex);
 
   // Loading and error states
   if (loading) return <LoadingIcon />;
@@ -147,7 +157,7 @@ export default function Home() {
               </select>
 
               <button>Reset Search</button>
-              <button>Change View Mode - Table / Card</button>
+              <ToggleViewButton viewMode={viewMode} onViewChange={setViewMode} />
             </div>
 
             {/* Results Table -- Multiple Views? */}
@@ -155,20 +165,38 @@ export default function Home() {
               {/* If loading show skeleton */}
 
               {/* Table View */}
-              <Table
-                dataSource={advocates || []}
-                columns={tableColumns}
-                rowKey="id"
-                pagination={{
-                  current: currentPage,
-                  pageSize: itemsPerPage,
-                  total: advocates.length,
-                  onChange: setCurrentPage
-                }}
-              />
+              { viewMode === 'table' ? (
+                  <Table
+                    dataSource={advocates || []}
+                    columns={tableColumns}
+                    rowKey="id"
+                    pagination={{
+                      current: currentPage,
+                      pageSize: itemsPerPage,
+                      total: advocates.length,
+                      onChange: setCurrentPage
+                    }}
+                  />
+                ) : (
+                  <>
+                    <div className="advocates-grid">
+                      {cardViewPageRange.map((advocate) => (
+                        <AdvocateCard key={advocate?.phoneNumber} advocate={advocate} />
+                      ))}
+                    </div>
 
-              {/* Card Grid View */}
-                {/* Card Grid Probably Needs Pagination */}
+                    {/* Advocate Cards also need pagination */}
+                    <Pagination
+                      current={currentPage}
+                      pageSize={itemsPerPage}
+                      total={advocates.length}
+                      onChange={setCurrentPage}
+                      showSizeChanger={false}
+                      style={{ textAlign: 'center', marginTop: '24px' }}
+                    />
+                  </>
+                )
+              }
             </div>
           </div>
         </main>
