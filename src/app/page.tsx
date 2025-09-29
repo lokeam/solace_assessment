@@ -6,12 +6,28 @@ import { useState } from "react";
 import AppHeader from "@/components/ui/header/AppHeader";
 import AdvocateSearchHero from "@/components/ui/hero/AdvocateSearchHero";
 import LoadingIcon from "@/components/ui/loader/LoadingIcon";
+import AdvocateSearchInput from "@/components/ui/searchbar/AdvocateSearchInput";
+
+// Ant Design Components
+import { Table, Tag, Input, Select, Button, Pagination } from "antd";
 
 // Hooks
 import { useGetAdvocates } from "@/hooks/useGetAdvocates";
+import { useAdvocateFilters } from "@/hooks/useAdvocateFilters";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 
 export default function Home() {
+  // Search state via advocate filters hook
+  const {
+    searchTerm, setSearchTerm,
+    resetAllFilters
+  } = useAdvocateFilters();
+
+  // Pagination State
+  const [currentPage, setCurrentPage] = useLocalStorage<number>('advocateCurrentPage', 1);
+  const [itemsPerPage] = useState(15);
+
 
   // Initial data grabbed from API handled by getAdvocates hook
   const { advocates, loading, error } = useGetAdvocates({
@@ -25,6 +41,48 @@ export default function Home() {
   if (loading) return <LoadingIcon />;
   if (error) return <div>Error: {error.message}</div>;
 
+  // Build table columns
+  const tableColumns = [
+    { title: 'Name', dataIndex: 'firstName', key: 'name' },
+    { title: 'Last Name', dataIndex: 'lastName', key: 'lastName' },
+    { title: 'City', dataIndex: 'city', key: 'city' },
+    { title: 'Degree', dataIndex: 'degree', key: 'degree', width: 70, render: (degree: string) => <Tag color="orange" style={{ color: '#1d4339', fontSize: '13px' }}>{degree}</Tag> },
+    { title: 'Experience', dataIndex: 'yearsOfExperience', key: 'yearsOfExperience', width: 90, render: (years: number) => `${years} years` },
+    {
+      title: 'Specialties',
+      dataIndex: 'specialties',
+      key: 'specialties',
+      render: (specialties: string[]) => (
+        <div>
+          {specialties.slice(0, 3).map((specialty, index) => (
+            <Tag key={index} style={{ marginBottom: '4px', fontSize: '14px', backgroundColor: '#3478661a', color: '#1d4339' }}>
+              {specialty}
+            </Tag>
+          ))}
+          {specialties.length > 3 && (
+            <div style={{ fontSize: '14px', color: '#666', fontStyle: 'italic' }}>
+              +{specialties.length - 3} more
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: 'Phone',
+      dataIndex: 'phoneNumber',
+      key: 'phoneNumber',
+      width: 0,
+      render: (phone: string) => {
+        if (!phone) return '-';
+        const cleanedNumber = phone.replace(/\D/g, '');
+        if (cleanedNumber.length === 10) {
+          return `(${cleanedNumber.slice(0, 3)}) ${cleanedNumber.slice(3, 6)}-${cleanedNumber.slice(6)}`;
+        }
+        return phone;
+      },
+    },
+  ];
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#fff', backgroundImage: 'linear-gradient(#fff 33%, #e9f0ee)' }}>
       {/* App Header */}
@@ -34,9 +92,16 @@ export default function Home() {
       <AdvocateSearchHero />
 
       {/* Search Bar*/}
-      <div className="search-container">
-        <input className="search-input" type="text" placeholder="Search" />
-      </div>
+      <AdvocateSearchInput
+        searchState={{
+          searchTerm,
+          setSearchTerm,
+          searchFocused: false, // We don't need focus state
+          setSearchFocused: () => {} // Empty function
+        }}
+        popularSearches={[]} // Empty for now
+        onSearch={() => {}} // Empty - search happens automatically
+      />
 
       {/* Main Content - Search Results */}
       <div className="main-content-container">
@@ -76,6 +141,17 @@ export default function Home() {
               {/* If loading show skeleton */}
 
               {/* Table View */}
+              <Table
+                    dataSource={advocates || []}
+                    columns={tableColumns}
+                    rowKey="id"
+                    pagination={{
+                      current: currentPage,
+                      pageSize: itemsPerPage,
+                      total: advocates.length,
+                      onChange: setCurrentPage
+                    }}
+                  />
 
               {/* Card Grid View */}
                 {/* Card Grid Probably Needs Pagination */}
