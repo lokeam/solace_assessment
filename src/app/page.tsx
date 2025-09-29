@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+// Components
+import AppHeader from "@/components/ui/header/AppHeader";
+import AdvocateSearchHero from "@/components/ui/hero/AdvocateSearchHero";
+
 
 export default function Home() {
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#fff', backgroundImage: 'linear-gradient(#fff 33%, #e9f0ee)' }}>
       {/* App Header */}
-      <header className="header-container">Solace</header>
+      <AppHeader />
 
       {/* Hero */}
-      <div className="hero-container">
-        <h1 className="solace-title">Let&apos;s Find Your Advocate</h1>
-      </div>
+      <AdvocateSearchHero />
 
       {/* Search Bar*/}
       <div className="search-container">
