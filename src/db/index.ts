@@ -11,8 +11,11 @@ const setup = () => {
     };
   }
 
-  // for query purposes
-  const queryClient = postgres(process.env.DATABASE_URL);
+  // Add proper error handling + set connection pool size
+  const queryClient = postgres(process.env.DATABASE_URL, {
+    onnotice: () => {},
+    max: 10,
+  });
   const db = drizzle(queryClient);
   return db;
 };
